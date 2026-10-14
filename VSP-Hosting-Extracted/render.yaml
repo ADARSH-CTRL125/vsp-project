@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: om-sai-automobiles-demo
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DATABASE_URL
+        value: sqlite:///./vsp.db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://example.netlify.app
+      - key: PUBLIC_BASE_URL
+        value: https://example.onrender.com

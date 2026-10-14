@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VSP – Vehicle Spare Parts Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --p:#0B3D5C;--p2:#1A6B9A;--p3:#2E8BC0;--accent:#F39C12;--ok:#27AE60;--err:#E74C3C;--warn:#E67E22;
+  --bg:#F4F7FB;--card:#FFF;--text:#1A2B3C;--muted:#6B7C8F;--border:#E2E8F0;--sw:250px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+code{background:#EEF2F7;padding:2px 7px;border-radius:4px;font-size:12px}
+.page{display:none;min-height:100vh}.page.on{display:flex}
+
+/* LOGIN */
+.login-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#0B3D5C 0%,#1A6B9A 45%,#2E8BC0 100%);padding:24px;position:relative;overflow:hidden}
+.login-wrap::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:rgba(255,255,255,0.04);top:-100px;right:-80px}
+.login-wrap::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03);bottom:-60px;left:-40px}
+.login-card{background:#fff;border-radius:18px;padding:42px 38px;width:100%;max-width:420px;box-shadow:0 25px 70px rgba(0,0,0,0.3);position:relative;z-index:1}
+.logo-big{width:72px;height:72px;background:linear-gradient(135deg,var(--p),var(--p3));color:#fff;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;margin:0 auto 14px;letter-spacing:1px;
+  box-shadow:0 8px 24px rgba(11,61,92,0.35)}
+.login-card h1{text-align:center;font-size:22px;color:var(--p);font-weight:700}
+.login-card .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:28px;margin-top:4px}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-weight:600;margin-bottom:6px;font-size:12.5px;color:var(--text);text-transform:uppercase;letter-spacing:.4px}
+.fg input,.fg select,.fg textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;transition:.2s;background:#fff}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--p3);box-shadow:0 0 0 3px rgba(46,139,192,.18)}
+.err{background:#FDECEA;color:var(--err);padding:11px 14px;border-radius:9px;margin-bottom:14px;font-size:13px;display:none}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border:none;border-radius:9px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s}
+.btn-p{background:var(--p);color:#fff}.btn-p:hover{background:#082E46}
+.btn-ok{background:var(--ok);color:#fff}.btn-ok:hover{background:#1E8449}
+.btn-err{background:var(--err);color:#fff}.btn-err:hover{background:#C0392B}
+.btn-out{background:transparent;border:1.5px solid var(--border);color:var(--text)}.btn-out:hover{background:var(--bg)}
+.btn-sm{padding:5px 11px;font-size:12px}.btn-block{width:100%;justify-content:center;padding:13px;font-size:15px;border-radius:10px}
+.hint{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);font-size:12.5px;color:var(--muted);line-height:1.9}
+.hint strong{color:var(--text)}.login-foot{color:rgba(255,255,255,.65);margin-top:22px;font-size:12px;z-index:1}
+
+/* APP */
+#app{display:none}#app.on{display:flex}
+.side{width:var(--sw);background:var(--p);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:.3s}
+.side-brand{display:flex;align-items:center;gap:12px;padding:20px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.logo-sm{width:42px;height:42px;background:rgba(255,255,255,.15);border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;letter-spacing:.5px}
+.side-brand strong{display:block;font-size:15px}.side-brand small{font-size:11px;opacity:.65}
+.nav{flex:1;padding:12px 8px;overflow-y:auto}
+.ni{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:9px;color:rgba(255,255,255,.78);text-decoration:none;font-size:13.5px;font-weight:500;margin-bottom:2px;transition:.15s;cursor:pointer}
+.ni:hover{background:rgba(255,255,255,.1);color:#fff}.ni.on{background:rgba(255,255,255,.2);color:#fff}
+.ni span{font-size:16px;width:22px;text-align:center}
+.side-foot{padding:14px;border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between}
+.ui span{display:block;font-weight:600;font-size:13px}.ui small{font-size:11px;opacity:.65}
+.main{margin-left:var(--sw);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.top{background:var(--card);padding:13px 26px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VSP – Vehicle Spare Parts Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --p:#0B3D5C;--p2:#1A6B9A;--p3:#2E8BC0;--accent:#F39C12;--ok:#27AE60;--err:#E74C3C;--warn:#E67E22;
+  --bg:#F4F7FB;--card:#FFF;--text:#1A2B3C;--muted:#6B7C8F;--border:#E2E8F0;--sw:250px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+code{background:#EEF2F7;padding:2px 7px;border-radius:4px;font-size:12px}
+.page{display:none;min-height:100vh}.page.on{display:flex}
+
+/* LOGIN */
+.login-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+.top h2{font-size:17px;flex:1;font-weight:700}.mt{display:none;background:none;border:none;font-size:22px;cursor:pointer}
+.sec{display:none;padding:22px 26px;flex:1}.sec.on{display:block}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.sc{background:var(--card);border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:4px solid}
+.sc.b{border-color:#3498DB}.sc.o{border-color:var(--warn)}.sc.g{border-color:var(--ok)}.sc.v{border-color:#9B59B6}
+.sc .ic{font-size:26px}.sc h3{font-size:22px;font-weight:800}.sc p{font-size:11.5px;color:var(--muted);margin-top:1px}
+
+/* CARDS TABLES */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.card{background:var(--card);border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);overflow:hidden}
+.ch{padding:13px 16px;border-bottom:1px solid var(--border);font-weight:600;font-size:13.5px}
+.cb{padding:14px 16px}.mu{color:var(--muted);font-size:13px}
+.tb{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.si{padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;min-width:200px}
+.si:focus{outline:none;border-color:var(--p3)}.tb select{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff}
+.tw{background:var(--card);border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:var(--p);color:#fff;padding:10px 12px;text-align:left;font-weight:600;white-space:nowrap;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px}
+td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:hover td{background:#F8FBFE}tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.bs{background:#D5F5E3;color:#1E8449}.bw{background:#FCF3CF;color:#B7950B}.bd{background:#FADBD8;color:#C0392B}.bi{background:#D6EAF8;color:#2471A3}
+.lr td{background:#FDF2F0!important}.ac{display:flex;gap:4px}
+.rt{display:flex;gap:6px;flex-wrap:wrap}
+.tb2{padding:8px 15px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s}
+.tb2:hover{border-color:var(--p3)}.tb2.on{background:var(--p);color:#fff;border-color:var(--p)}
+
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.mo.on{display:flex}
+.md{background:#fff;border-radius:14px;width:100%;max-width:580px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,.3);animation:mi .2s ease}
+@keyframes mi{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid var(--border)}
+.mh h3{font-size:15.5px}.mx{background:none;border:none;font-size:24px;cursor:pointer;color:var(--muted);line-height:1}
+.mb{padding:18px 20px;overflow-y:auto;flex:1}
+.mf{padding:13px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.li{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:end;margin-bottom:8px}
+.li select,.li input{padding:8px 10px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;width:100%}
+.tot{text-align:right;font-size:16px;font-weight:700;margin-top:12px;padding-top:12px;border-top:2px solid var(--border);color:var(--p)}
+.lii{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.lii:last-child{border-bottom:none}.lii .am{font-weight:600;color:var(--ok)}
+.inv{display:none}
+@media print{body *{visibility:hidden}.inv,.inv *{visibility:visible}.inv{display:block!important;position:absolute;left:0;top:0;width:100%;padding:40px;font-family:'Times New Roman',serif}}
+@media(max-width:1100px){.sg{grid-template-columns:1fr 1fr}.cg{grid-template-columns:1fr}}
+@media(max-width:768px){.side{transform:translateX(-100%)}.side.open{transform:translateX(0)}.main{margin-left:0}.mt{display:block}.sg{grid-template-columns:1fr}.fr,.fr3{grid-template-columns:1fr}.li{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage" class="page on">
+<div class="login-wrap">
+<div class="login-card">
+  <div class="logo-big">VSP</div>
+  <h1>Vehicle Spare Parts</h1>
+  <p class="sub">Management System &mdash; Government Polytechnic Mumbai</p>
+  <form id="loginForm">
+    <div class="fg"><label>Username</label><input type="text" id="lu" placeholder="Enter username" autocomplete="username" value="admin"/></div>
+    <div class="fg"><label>Password</label><input type="password" id="lp" placeholder="Enter password" autocomplete="current-password" value="admin123"/></div>
+    <div class="err" id="lerr"></div>
+    <button type="submit" class="btn btn-p btn-block">Sign In</button>
+  </form>
+  <div class="hint">
+    <strong>Demo Login Accounts</strong><br/>
+    Admin &nbsp;→ <code>admin</code> / <code>admin123</code><br/>
+    Staff &nbsp;&nbsp;→ <code>staff</code> / <code>staff123</code><br/>
+    Viewer → <code>viewer</code> / <code>viewer123</code>
+  </div>
+</div>
+<p class="login-foot">VSPMS &copy; 2025–26 &nbsp;|&nbsp; Diploma in Information Technology</p>
+</div>
+</div>
+
+<!-- APP -->
+<div id="app" class="page">
+<aside class="side" id="side">
+  <div class="side-brand"><div class="logo-sm">VSP</div><div><strong>VSP System</strong><small>Spare Parts Manager</small></div></div>
+  <nav class="nav">
+    <a class="ni on" data-s="dash" onclick="go('dash')"><span>📊</span> Dashboard</a>
+    <a class="ni" data-s="inv" onclick="go('inv')"><span>📦</span> Inventory</a>
+    <a class="ni" data-s="pur" onclick="go('pur')"><span>🛒</span> Purchases</a>
+    <a class="ni" data-s="sal" onclick="go('sal')"><span>💰</span> Sales</a>
+    <a class="ni" data-s="sup" onclick="go('sup')"><span>🏭</span> Suppliers</a>
+    <a class="ni" data-s="cus" onclick="go('cus')"><span>👥</span> Customers</a>
+    <a class="ni" data-s="rep" onclick="go('rep')"><span>📄</span> Reports</a>
+    <a class="ni ao" data-s="usr" onclick="go('usr')"><span>👤</span> Users</a>
+  </nav>
+  <div class="side-foot">
+    <div class="ui"><span id="un">User</span><small id="ur">Role</small></div>
+    <button class="btn btn-sm btn-out" style="color:#fff;border-color:rgba(255,255,255,.3)" onclick="logout()">Logout</button>
+  </div>
+</aside>
+<main class="main">
+<header class="top">
+  <button class="mt" onclick="document.getElementById('side').classList.toggle('open')">☰</button>
+  <h2 id="pt">Dashboard</h2>
+  <span class="badge bw" id="lsb" style="display:none"></span>
+</header>
+
+<section id="s-dash" class="sec on">
+  <div class="sg">
+    <div class="sc b"><div class="ic">📦</div><div><h3 id="st1">0</h3><p>Total Parts</p></div></div>
+    <div class="sc o"><div class="ic">⚠️</div><div><h3 id="st2">0</h3><p>Low Stock</p></div></div>
+    <div class="sc g"><div class="ic">💰</div><div><h3 id="st3">₹0</h3><p>Today's Sales</p></div></div>
+    <div class="sc v"><div class="ic">🛒</div><div><h3 id="st4">₹0</h3><p>Today's Purchases</p></div></div>
+  </div>
+  <div class="cg">
+    <div class="card"><div class="ch">Recent Sales</div><div class="cb" id="rs">—</div></div>
+    <div class="card"><div class="ch">Low Stock Alerts</div><div class="cb" id="ls">—</div></div>
+  </div>
+</section>
+
+<section id="s-inv" class="sec">
+  <div class="tb">
+    <input class="si" id="is" placeholder="Search parts by name, ID, brand..." oninput="rInv()"/>
+    <select id="ic" onchange="rInv()"><option value="">All Categories</option></select>
+    <button class="btn btn-p" id="ba" onclick="mPart()">+ Add Part</button>
+  </div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Brand</th><th>Qty</th><th>Reorder</th><th>Buy ₹</th><th>Sell ₹</th><th>Actions</th></tr></thead><tbody id="itb"></tbody></table></div>
+</section>
+
+<section id="s-pur" class="sec">
+  <div class="tb"><button class="btn btn-p" id="bp" onclick="mPur()">+ New Purchase</button></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Date</th><th>Supplier</th><th>Items</th><th>Total</th></tr></thead><tbody id="ptb"></tbody></table></div>
+</section>
+
+<section id="s-sal" class="sec">
+  <div class="tb"><button class="btn btn-p" id="bs" onclick="mSal()">+ New Sale</button></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Invoice</th></tr></thead><tbody id="stb"></tbody></table></div>
+</section>
+
+<section id="s-sup" class="sec">
+  <div class="tb"><input class="si" id="ss" placeholder="Search suppliers..." oninput="rSup()"/><button class="btn btn-p" id="bsp" onclick="mSup()">+ Add Supplier</button></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Phone</th><th>Email</th><th>Address</th><th>Actions</th></tr></thead><tbody id="sutb"></tbody></table></div>
+</section>
+
+<section id="s-cus" class="sec">
+  <div class="tb"><input class="si" id="cs" placeholder="Search customers..." oninput="rCus()"/><button class="btn btn-p" id="bc" onclick="mCus()">+ Add Customer</button></div>
+  <div class="tw"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>Address</th><th>Actions</th></tr></thead><tbody id="ctb"></tbody></table></div>
+</section>
+
+<section id="s-rep" class="sec">
+  <div class="rt">
+    <button class="tb2 on" onclick="rep('inv',this)">Inventory</button>
+    <button class="tb2" onclick="rep('low',this)">Low Stock</button>
+    <button class="tb2" onclick="rep('sal',this)">Sales</button>
+    <button class="tb2" onclick="rep('pur',this)">Purchases</button>
+  </div>
+  <div class="card" style="margin-top:14px"><div class="cb" id="rb"></div></div>
+</section>
+
+<section id="s-usr" class="sec">
+  <div class="tb"><button class="btn btn-p" onclick="mUsr()">+ Add User</button></div>
+  <div class="tw"><table><thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody id="utb"></tbody></table></div>
+</section>
+</main>
+</div>
+
+<div class="mo" id="mo" onclick="if(event.target===this)cm()"><div class="md"><div class="mh"><h3 id="mt"></h3><button class="mx" onclick="cm()">&times;</button></div><div class="mb" id="mb"></div><div class="mf" id="mf"></div></div></div>
+<div class="inv" id="invp"></div>
+
+<script>
+/* ========== 100 SPARE PARTS DATA ========== */
+const PARTS100 = [{"id": "P001", "name": "Oil Filter", "category": "Engine", "brand": "Mann", "models": "Swift, i20, City, Verna, Baleno", "qty": 5, "reorder": 6, "purchasePrice": 120, "sellingPrice": 200, "supplierId": "S003"}, {"id": "P002", "name": "Air Filter", "category": "Engine", "brand": "Bosch", "models": "Swift, i20, City, Verna, Baleno", "qty": 20, "reorder": 8, "purchasePrice": 250, "sellingPrice": 400, "supplierId": "S001"}, {"id": "P003", "name": "Fuel Filter", "category": "Engine", "brand": "Bosch", "models": "Swift, i20, City, Verna, Baleno", "qty": 11, "reorder": 6, "purchasePrice": 180, "sellingPrice": 300, "supplierId": "S003"}, {"id": "P004", "name": "Spark Plug Iridium", "category": "Engine", "brand": "NGK", "models": "Swift, i20, City, Verna, Baleno", "qty": 37, "reorder": 6, "purchasePrice": 180, "sellingPrice": 280, "supplierId": "S003"}, {"id": "P005", "name": "Spark Plug Copper", "category": "Engine", "brand": "Denso", "models": "Swift, i20, City, Verna, Baleno", "qty": 30, "reorder": 5, "purchasePrice": 80, "sellingPrice": 140, "supplierId": "S001"}, {"id": "P006", "name": "Timing Belt", "category": "Engine", "brand": "Gates", "models": "Swift, i20, City, Verna, Baleno", "qty": 8, "reorder": 8, "purchasePrice": 800, "sellingPrice": 1200, "supplierId": "S001"}, {"id": "P007", "name": "Timing Chain Kit", "category": "Engine", "brand": "INA", "models": "Swift, i20, City, Verna, Baleno", "qty": 35, "reorder": 14, "purchasePrice": 2500, "sellingPrice": 3800, "supplierId": "S001"}, {"id": "P008", "name": "Radiator Cap", "category": "Engine", "brand": "Gates", "models": "Swift, i20, City, Verna, Baleno", "qty": 38, "reorder": 8, "purchasePrice": 150, "sellingPrice": 250, "supplierId": "S003"}, {"id": "P009", "name": "Thermostat", "category": "Engine", "brand": "Wahler", "models": "Swift, i20, City, Verna, Baleno", "qty": 18, "reorder": 13, "purchasePrice": 350, "sellingPrice": 550, "supplierId": "S001"}, {"id": "P010", "name": "Water Pump", "category": "Engine", "brand": "GMB", "models": "Swift, i20, City, Verna, Baleno", "qty": 31, "reorder": 14, "purchasePrice": 1200, "sellingPrice": 1800, "supplierId": "S002"}, {"id": "P011", "name": "Oil Pump", "category": "Engine", "brand": "OEM", "models": "Swift, i20, City, Verna, Baleno", "qty": 3, "reorder": 7, "purchasePrice": 2200, "sellingPrice": 3200, "supplierId": "S003"}, {"id": "P012", "name": "PCV Valve", "category": "Engine", "brand": "Bosch", "models": "Swift, i20, City, Verna, Baleno", "qty": 30, "reorder": 10, "purchasePrice": 200, "sellingPrice": 350, "supplierId": "S002"}, {"id": "P013", "name": "Valve Cover Gasket", "category": "Engine", "brand": "Elring", "models": "Swift, i20, City, Verna, Baleno", "qty": 12, "reorder": 8, "purchasePrice": 300, "sellingPrice": 480, "supplierId": "S002"}, {"id": "P014", "name": "Head Gasket", "category": "Engine", "brand": "Elring", "models": "Swift, i20, City, Verna, Baleno", "qty": 9, "reorder": 6, "purchasePrice": 900, "sellingPrice": 1400, "supplierId": "S002"}, {"id": "P015", "name": "Serpentine Belt", "category": "Engine", "brand": "Gates", "models": "Swift, i20, City, Verna, Baleno", "qty": 9, "reorder": 10, "purchasePrice": 450, "sellingPrice": 700, "supplierId": "S002"}, {"id": "P016", "name": "Engine Mount", "category": "Engine", "brand": "Lemforder", "models": "Swift, i20, City, Verna, Baleno", "qty": 6, "reorder": 9, "purchasePrice": 800, "sellingPrice": 1200, "supplierId": "S003"}, {"id": "P017", "name": "Crankshaft Sensor", "category": "Engine", "brand": "Bosch", "models": "Swift, i20, City, Verna, Baleno", "qty": 32, "reorder": 13, "purchasePrice": 600, "sellingPrice": 950, "supplierId": "S001"}, {"id": "P018", "name": "Camshaft Sensor", "category": "Engine", "brand": "Bosch", "models": "Swift, i20, City, Verna, Baleno", "qty": 27, "reorder": 6, "purchasePrice": 550, "sellingPrice": 900, "supplierId": "S003"}, {"id": "P019", "name": "Oxygen Sensor", "category": "Engine", "brand": "Bosch", "models": "Swift, i20, City, Verna, Baleno", "qty": 21, "reorder": 15, "purchasePrice": 1200, "sellingPrice": 1800, "supplierId": "S003"}, {"id": "P020", "name": "MAP Sensor", "category": "Engine", "brand": "Bosch", "models": "Swift, i20, City, Verna, Baleno", "qty": 26, "reorder": 14, "purchasePrice": 900, "sellingPrice": 1400, "supplierId": "S001"}, {"id": "P021", "name": "Brake Pad Front", "category": "Brakes", "brand": "Bosch", "models": "Universal / Most Hatchbacks", "qty": 7, "reorder": 5, "purchasePrice": 450, "sellingPrice": 650, "supplierId": "S003"}, {"id": "P022", "name": "Brake Pad Rear", "category": "Brakes", "brand": "Bosch", "models": "Universal / Most Hatchbacks", "qty": 17, "reorder": 9, "purchasePrice": 400, "sellingPrice": 600, "supplierId": "S001"}, {"id": "P023", "name": "Brake Disc Front", "category": "Brakes", "brand": "Brembo", "models": "Universal / Most Hatchbacks", "qty": 17, "reorder": 6, "purchasePrice": 1200, "sellingPrice": 1800, "supplierId": "S002"}, {"id": "P024", "name": "Brake Disc Rear", "category": "Brakes", "brand": "Brembo", "models": "Universal / Most Hatchbacks", "qty": 20, "reorder": 12, "purchasePrice": 1000, "sellingPrice": 1500, "supplierId": "S003"}, {"id": "P025", "name": "Brake Shoe", "category": "Brakes", "brand": "TVS", "models": "Universal / Most Hatchbacks", "qty": 26, "reorder": 7, "purchasePrice": 350, "sellingPrice": 520, "supplierId": "S002"}, {"id": "P026", "name": "Brake Fluid DOT4", "category": "Brakes", "brand": "Castrol", "models": "Universal / Most Hatchbacks", "qty": 25, "reorder": 8, "purchasePrice": 180, "sellingPrice": 280, "supplierId": "S003"}, {"id": "P027", "name": "Brake Caliper", "category": "Brakes", "brand": "TRW", "models": "Universal / Most Hatchbacks", "qty": 20, "reorder": 15, "purchasePrice": 2500, "sellingPrice": 3800, "supplierId": "S003"}, {"id": "P028", "name": "Brake Master Cylinder", "category": "Brakes", "brand": "TRW", "models": "Universal / Most Hatchbacks", "qty": 7, "reorder": 14, "purchasePrice": 1800, "sellingPrice": 2700, "supplierId": "S003"}, {"id": "P029", "name": "Brake Hose", "category": "Brakes", "brand": "Gates", "models": "Universal / Most Hatchbacks", "qty": 13, "reorder": 13, "purchasePrice": 250, "sellingPrice": 400, "supplierId": "S003"}, {"id": "P030", "name": "ABS Sensor", "category": "Brakes", "brand": "Bosch", "models": "Universal / Most Hatchbacks", "qty": 18, "reorder": 7, "purchasePrice": 700, "sellingPrice": 1100, "supplierId": "S002"}, {"id": "P031", "name": "Handbrake Cable", "category": "Brakes", "brand": "OEM", "models": "Universal / Most Hatchbacks", "qty": 27, "reorder": 9, "purchasePrice": 400, "sellingPrice": 650, "supplierId": "S003"}, {"id": "P032", "name": "Brake Light Switch", "category": "Brakes", "brand": "Bosch", "models": "Universal / Most Hatchbacks", "qty": 38, "reorder": 8, "purchasePrice": 150, "sellingPrice": 250, "supplierId": "S003"}, {"id": "P033", "name": "Headlight Bulb H4", "category": "Electrical", "brand": "Philips", "models": "Universal 12V Systems", "qty": 23, "reorder": 5, "purchasePrice": 90, "sellingPrice": 150, "supplierId": "S001"}, {"id": "P034", "name": "Headlight Bulb H7", "category": "Electrical", "brand": "Osram", "models": "Universal 12V Systems", "qty": 5, "reorder": 10, "purchasePrice": 120, "sellingPrice": 200, "supplierId": "S002"}, {"id": "P035", "name": "LED Headlight Kit", "category": "Electrical", "brand": "Philips", "models": "Universal 12V Systems", "qty": 20, "reorder": 6, "purchasePrice": 1500, "sellingPrice": 2500, "supplierId": "S001"}, {"id": "P036", "name": "Tail Light Bulb", "category": "Electrical", "brand": "Philips", "models": "Universal 12V Systems", "qty": 39, "reorder": 10, "purchasePrice": 40, "sellingPrice": 80, "supplierId": "S001"}, {"id": "P037", "name": "Indicator Bulb", "category": "Electrical", "brand": "Philips", "models": "Universal 12V Systems", "qty": 17, "reorder": 12, "purchasePrice": 30, "sellingPrice": 60, "supplierId": "S003"}, {"id": "P038", "name": "Battery 12V 35Ah", "category": "Electrical", "brand": "Exide", "models": "Universal 12V Systems", "qty": 32, "reorder": 7, "purchasePrice": 3500, "sellingPrice": 4800, "supplierId": "S002"}, {"id": "P039", "name": "Battery 12V 45Ah", "category": "Electrical", "brand": "Amaron", "models": "Universal 12V Systems", "qty": 11, "reorder": 8, "purchasePrice": 4200, "sellingPrice": 5800, "supplierId": "S003"}, {"id": "P040", "name": "Alternator", "category": "Electrical", "brand": "Bosch", "models": "Universal 12V Systems", "qty": 38, "reorder": 13, "purchasePrice": 4500, "sellingPrice": 6500, "supplierId": "S002"}, {"id": "P041", "name": "Starter Motor", "category": "Electrical", "brand": "Bosch", "models": "Universal 12V Systems", "qty": 40, "reorder": 11, "purchasePrice": 3800, "sellingPrice": 5500, "supplierId": "S003"}, {"id": "P042", "name": "Ignition Coil", "category": "Electrical", "brand": "Bosch", "models": "Universal 12V Systems", "qty": 28, "reorder": 10, "purchasePrice": 800, "sellingPrice": 1200, "supplierId": "S001"}, {"id": "P043", "name": "Fuse Box Set", "category": "Electrical", "brand": "OEM", "models": "Universal 12V Systems", "qty": 11, "reorder": 13, "purchasePrice": 200, "sellingPrice": 350, "supplierId": "S002"}, {"id": "P044", "name": "Relay 12V", "category": "Electrical", "brand": "Bosch", "models": "Universal 12V Systems", "qty": 8, "reorder": 5, "purchasePrice": 80, "sellingPrice": 150, "supplierId": "S001"}, {"id": "P045", "name": "Horn", "category": "Electrical", "brand": "Hella", "models": "Universal 12V Systems", "qty": 12, "reorder": 15, "purchasePrice": 350, "sellingPrice": 550, "supplierId": "S001"}, {"id": "P046", "name": "Wiper Motor", "category": "Electrical", "brand": "Bosch", "models": "Universal 12V Systems", "qty": 30, "reorder": 14, "purchasePrice": 1500, "sellingPrice": 2200, "supplierId": "S001"}, {"id": "P047", "name": "Window Motor", "category": "Electrical", "brand": "OEM", "models": "Universal 12V Systems", "qty": 27, "reorder": 11, "purchasePrice": 1200, "sellingPrice": 1800, "supplierId": "S003"}, {"id": "P048", "name": "Power Window Switch", "category": "Electrical", "brand": "OEM", "models": "Universal 12V Systems", "qty": 32, "reorder": 13, "purchasePrice": 400, "sellingPrice": 650, "supplierId": "S002"}, {"id": "P049", "name": "Blower Motor", "category": "Electrical", "brand": "Bosch", "models": "Universal 12V Systems", "qty": 38, "reorder": 5, "purchasePrice": 900, "sellingPrice": 1400, "supplierId": "S003"}, {"id": "P050", "name": "AC Compressor Clutch", "category": "Electrical", "brand": "Sanden", "models": "Universal 12V Systems", "qty": 10, "reorder": 15, "purchasePrice": 2000, "sellingPrice": 3000, "supplierId": "S003"}, {"id": "P051", "name": "Shock Absorber Front", "category": "Suspension", "brand": "Gabriel", "models": "Swift, Dzire, i20, Polo", "qty": 20, "reorder": 15, "purchasePrice": 1800, "sellingPrice": 2600, "supplierId": "S002"}, {"id": "P052", "name": "Shock Absorber Rear", "category": "Suspension", "brand": "Gabriel", "models": "Swift, Dzire, i20, Polo", "qty": 10, "reorder": 9, "purchasePrice": 1600, "sellingPrice": 2400, "supplierId": "S002"}, {"id": "P053", "name": "Coil Spring Front", "category": "Suspension", "brand": "OEM", "models": "Swift, Dzire, i20, Polo", "qty": 13, "reorder": 12, "purchasePrice": 1200, "sellingPrice": 1800, "supplierId": "S001"}, {"id": "P054", "name": "Coil Spring Rear", "category": "Suspension", "brand": "OEM", "models": "Swift, Dzire, i20, Polo", "qty": 19, "reorder": 13, "purchasePrice": 1000, "sellingPrice": 1500, "supplierId": "S001"}, {"id": "P055", "name": "Ball Joint", "category": "Suspension", "brand": "Lemforder", "models": "Swift, Dzire, i20, Polo", "qty": 35, "reorder": 6, "purchasePrice": 450, "sellingPrice": 700, "supplierId": "S003"}, {"id": "P056", "name": "Tie Rod End", "category": "Suspension", "brand": "TRW", "models": "Swift, Dzire, i20, Polo", "qty": 22, "reorder": 15, "purchasePrice": 350, "sellingPrice": 550, "supplierId": "S003"}, {"id": "P057", "name": "Control Arm", "category": "Suspension", "brand": "Lemforder", "models": "Swift, Dzire, i20, Polo", "qty": 9, "reorder": 8, "purchasePrice": 1500, "sellingPrice": 2200, "supplierId": "S002"}, {"id": "P058", "name": "Stabilizer Link", "category": "Suspension", "brand": "TRW", "models": "Swift, Dzire, i20, Polo", "qty": 13, "reorder": 13, "purchasePrice": 300, "sellingPrice": 480, "supplierId": "S003"}, {"id": "P059", "name": "Bush Kit", "category": "Suspension", "brand": "OEM", "models": "Swift, Dzire, i20, Polo", "qty": 3, "reorder": 14, "purchasePrice": 600, "sellingPrice": 950, "supplierId": "S002"}, {"id": "P060", "name": "Strut Mount", "category": "Suspension", "brand": "Sachs", "models": "Swift, Dzire, i20, Polo", "qty": 34, "reorder": 5, "purchasePrice": 500, "sellingPrice": 800, "supplierId": "S001"}, {"id": "P061", "name": "Wheel Bearing", "category": "Suspension", "brand": "SKF", "models": "Swift, Dzire, i20, Polo", "qty": 26, "reorder": 9, "purchasePrice": 700, "sellingPrice": 1100, "supplierId": "S001"}, {"id": "P062", "name": "CV Joint", "category": "Suspension", "brand": "GKN", "models": "Swift, Dzire, i20, Polo", "qty": 6, "reorder": 8, "purchasePrice": 1800, "sellingPrice": 2700, "supplierId": "S003"}, {"id": "P063", "name": "Clutch Plate", "category": "Transmission", "brand": "Valeo", "models": "Alto, WagonR, Swift, Celerio", "qty": 8, "reorder": 6, "purchasePrice": 1200, "sellingPrice": 1800, "supplierId": "S003"}, {"id": "P064", "name": "Clutch Cover", "category": "Transmission", "brand": "Valeo", "models": "Alto, WagonR, Swift, Celerio", "qty": 34, "reorder": 6, "purchasePrice": 1500, "sellingPrice": 2200, "supplierId": "S003"}, {"id": "P065", "name": "Release Bearing", "category": "Transmission", "brand": "SKF", "models": "Alto, WagonR, Swift, Celerio", "qty": 11, "reorder": 7, "purchasePrice": 400, "sellingPrice": 650, "supplierId": "S003"}, {"id": "P066", "name": "Clutch Cable", "category": "Transmission", "brand": "OEM", "models": "Alto, WagonR, Swift, Celerio", "qty": 33, "reorder": 13, "purchasePrice": 250, "sellingPrice": 400, "supplierId": "S001"}, {"id": "P067", "name": "Gear Oil 1L", "category": "Transmission", "brand": "Castrol", "models": "Alto, WagonR, Swift, Celerio", "qty": 19, "reorder": 13, "purchasePrice": 350, "sellingPrice": 500, "supplierId": "S003"}, {"id": "P068", "name": "ATF Fluid", "category": "Transmission", "brand": "Mobil", "models": "Alto, WagonR, Swift, Celerio", "qty": 30, "reorder": 8, "purchasePrice": 450, "sellingPrice": 650, "supplierId": "S003"}, {"id": "P069", "name": "Gear Lever Knob", "category": "Transmission", "brand": "OEM", "models": "Alto, WagonR, Swift, Celerio", "qty": 15, "reorder": 9, "purchasePrice": 150, "sellingPrice": 280, "supplierId": "S002"}, {"id": "P070", "name": "Speed Sensor", "category": "Transmission", "brand": "Bosch", "models": "Alto, WagonR, Swift, Celerio", "qty": 16, "reorder": 15, "purchasePrice": 500, "sellingPrice": 800, "supplierId": "S002"}, {"id": "P071", "name": "Drive Shaft", "category": "Transmission", "brand": "GKN", "models": "Alto, WagonR, Swift, Celerio", "qty": 36, "reorder": 12, "purchasePrice": 3500, "sellingPrice": 5000, "supplierId": "S001"}, {"id": "P072", "name": "Differential Oil", "category": "Transmission", "brand": "Castrol", "models": "Alto, WagonR, Swift, Celerio", "qty": 18, "reorder": 8, "purchasePrice": 300, "sellingPrice": 450, "supplierId": "S001"}, {"id": "P073", "name": "Wiper Blade 18 inch", "category": "Body", "brand": "Bosch", "models": "Universal Fitment", "qty": 24, "reorder": 5, "purchasePrice": 120, "sellingPrice": 200, "supplierId": "S003"}, {"id": "P074", "name": "Wiper Blade 22 inch", "category": "Body", "brand": "Bosch", "models": "Universal Fitment", "qty": 38, "reorder": 8, "purchasePrice": 150, "sellingPrice": 250, "supplierId": "S003"}, {"id": "P075", "name": "Side Mirror LH", "category": "Body", "brand": "OEM", "models": "Universal Fitment", "qty": 17, "reorder": 5, "purchasePrice": 800, "sellingPrice": 1200, "supplierId": "S001"}, {"id": "P076", "name": "Side Mirror RH", "category": "Body", "brand": "OEM", "models": "Universal Fitment", "qty": 12, "reorder": 5, "purchasePrice": 800, "sellingPrice": 1200, "supplierId": "S001"}, {"id": "P077", "name": "Door Handle Outer", "category": "Body", "brand": "OEM", "models": "Universal Fitment", "qty": 5, "reorder": 10, "purchasePrice": 350, "sellingPrice": 550, "supplierId": "S001"}, {"id": "P078", "name": "Door Lock Actuator", "category": "Body", "brand": "OEM", "models": "Universal Fitment", "qty": 35, "reorder": 8, "purchasePrice": 600, "sellingPrice": 950, "supplierId": "S002"}, {"id": "P079", "name": "Bonnet Latch", "category": "Body", "brand": "OEM", "models": "Universal Fitment", "qty": 11, "reorder": 12, "purchasePrice": 250, "sellingPrice": 400, "supplierId": "S003"}, {"id": "P080", "name": "Fuel Cap", "category": "Body", "brand": "OEM", "models": "Universal Fitment", "qty": 11, "reorder": 14, "purchasePrice": 150, "sellingPrice": 250, "supplierId": "S003"}, {"id": "P081", "name": "Number Plate Light", "category": "Body", "brand": "Philips", "models": "Universal Fitment", "qty": 33, "reorder": 8, "purchasePrice": 80, "sellingPrice": 140, "supplierId": "S002"}, {"id": "P082", "name": "Mud Flap Set", "category": "Body", "brand": "OEM", "models": "Universal Fitment", "qty": 29, "reorder": 8, "purchasePrice": 300, "sellingPrice": 500, "supplierId": "S001"}, {"id": "P083", "name": "Floor Mat Set", "category": "Body", "brand": "3D", "models": "Universal Fitment", "qty": 9, "reorder": 15, "purchasePrice": 800, "sellingPrice": 1400, "supplierId": "S002"}, {"id": "P084", "name": "Seat Cover Set", "category": "Body", "brand": "OEM", "models": "Universal Fitment", "qty": 25, "reorder": 11, "purchasePrice": 1500, "sellingPrice": 2500, "supplierId": "S002"}, {"id": "P085", "name": "Radiator", "category": "Cooling", "brand": "Valeo", "models": "Petrol & Diesel Cars", "qty": 32, "reorder": 5, "purchasePrice": 3500, "sellingPrice": 5200, "supplierId": "S003"}, {"id": "P086", "name": "Radiator Hose Upper", "category": "Cooling", "brand": "Gates", "models": "Petrol & Diesel Cars", "qty": 8, "reorder": 15, "purchasePrice": 200, "sellingPrice": 350, "supplierId": "S001"}, {"id": "P087", "name": "Radiator Hose Lower", "category": "Cooling", "brand": "Gates", "models": "Petrol & Diesel Cars", "qty": 28, "reorder": 10, "purchasePrice": 200, "sellingPrice": 350, "supplierId": "S001"}, {"id": "P088", "name": "Coolant 1L", "category": "Cooling", "brand": "Castrol", "models": "Petrol & Diesel Cars", "qty": 18, "reorder": 8, "purchasePrice": 250, "sellingPrice": 400, "supplierId": "S001"}, {"id": "P089", "name": "Cooling Fan Motor", "category": "Cooling", "brand": "Bosch", "models": "Petrol & Diesel Cars", "qty": 37, "reorder": 12, "purchasePrice": 1200, "sellingPrice": 1800, "supplierId": "S001"}, {"id": "P090", "name": "Fan Belt", "category": "Cooling", "brand": "Gates", "models": "Petrol & Diesel Cars", "qty": 30, "reorder": 7, "purchasePrice": 180, "sellingPrice": 300, "supplierId": "S002"}, {"id": "P091", "name": "Heater Core", "category": "Cooling", "brand": "OEM", "models": "Petrol & Diesel Cars", "qty": 32, "reorder": 8, "purchasePrice": 1500, "sellingPrice": 2300, "supplierId": "S001"}, {"id": "P092", "name": "AC Condenser", "category": "Cooling", "brand": "Valeo", "models": "Petrol & Diesel Cars", "qty": 31, "reorder": 13, "purchasePrice": 2800, "sellingPrice": 4200, "supplierId": "S001"}, {"id": "P093", "name": "Cabin Filter", "category": "Filters / Fluids", "brand": "Bosch", "models": "Universal", "qty": 6, "reorder": 15, "purchasePrice": 200, "sellingPrice": 350, "supplierId": "S003"}, {"id": "P094", "name": "Hydraulic Filter", "category": "Filters / Fluids", "brand": "Mann", "models": "Universal", "qty": 3, "reorder": 6, "purchasePrice": 400, "sellingPrice": 650, "supplierId": "S001"}, {"id": "P095", "name": "Engine Oil 5W30 1L", "category": "Filters / Fluids", "brand": "Castrol", "models": "Universal", "qty": 13, "reorder": 11, "purchasePrice": 450, "sellingPrice": 650, "supplierId": "S002"}, {"id": "P096", "name": "Engine Oil 10W40 1L", "category": "Filters / Fluids", "brand": "Mobil", "models": "Universal", "qty": 33, "reorder": 8, "purchasePrice": 400, "sellingPrice": 600, "supplierId": "S002"}, {"id": "P097", "name": "Brake Cleaner Spray", "category": "Filters / Fluids", "brand": "Wurth", "models": "Universal", "qty": 6, "reorder": 7, "purchasePrice": 180, "sellingPrice": 280, "supplierId": "S002"}, {"id": "P098", "name": "Carb Cleaner", "category": "Filters / Fluids", "brand": "Wurth", "models": "Universal", "qty": 3, "reorder": 11, "purchasePrice": 150, "sellingPrice": 250, "supplierId": "S002"}, {"id": "P099", "name": "WD40 400ml", "category": "Filters / Fluids", "brand": "WD40", "models": "Universal", "qty": 32, "reorder": 9, "purchasePrice": 250, "sellingPrice": 400, "supplierId": "S002"}, {"id": "P100", "name": "Grease Tube", "category": "Filters / Fluids", "brand": "Castrol", "models": "Universal", "qty": 38, "reorder": 15, "purchasePrice": 120, "sellingPrice": 200, "supplierId": "S003"}];
+
+const DB = {
+  g(k){const d=localStorage.getItem('vsp_'+k);return d?JSON.parse(d):null},
+  s(k,v){localStorage.setItem('vsp_'+k,JSON.stringify(v))},
+  init(){
+    if(!this.g('users')) this.s('users',[
+      {username:'admin',password:'admin123',fullName:'System Administrator',role:'Admin',status:'Active'},
+      {username:'staff',password:'staff123',fullName:'Staff Operator',role:'Staff',status:'Active'},
+      {username:'viewer',password:'viewer123',fullName:'Manager Viewer',role:'Viewer',status:'Active'}
+    ]);
+    // Always ensure 100 parts exist (refresh data if empty or old small set)
+    const existing = this.g('parts');
+    if(!existing || existing.length < 50){
+      this.s('parts', PARTS100);
+    }
+    if(!this.g('suppliers')) this.s('suppliers',[
+      {id:'S001',name:'AutoParts India Ltd',contact:'Ramesh Kumar',phone:'9876543210',email:'ramesh@autoparts.in',address:'Andheri, Mumbai'},
+      {id:'S002',name:'Genuine Spares Co.',contact:'Suresh Patil',phone:'9123456780',email:'suresh@genspares.com',address:'Pune, Maharashtra'},
+      {id:'S003',name:'Metro Auto Distributors',contact:'Anita Shah',phone:'9988776655',email:'anita@metroauto.in',address:'Thane, Mumbai'}
+    ]);
+    if(!this.g('customers')) this.s('customers',[
+      {id:'C001',name:'Rajesh Motors',phone:'9876501234',email:'rajesh@motors.com',address:'Dadar, Mumbai'},
+      {id:'C002',name:'Walk-in Customer',phone:'-',email:'-',address:'-'},
+      {id:'C003',name:'Shree Auto Service',phone:'9765432109',email:'shree@auto.in',address:'Borivali, Mumbai'}
+    ]);
+    if(!this.g('purchases')) this.s('purchases',[]);
+    if(!this.g('sales')) this.s('sales',[]);
+    if(!this.g('counters')) this.s('counters',{part:100,supplier:3,customer:3,purchase:0,sale:0});
+  }
+};
+
+let CU = null;
+const $ = id => document.getElementById(id);
+
+function login(e){
+  e.preventDefault();
+  const u=$('lu').value.trim(), p=$('lp').value;
+  const found = DB.g('users').find(x => x.username===u && x.password===p && x.status==='Active');
+  if(!found){ $('lerr').textContent='Invalid username or password. Try admin / admin123'; $('lerr').style.display='block'; return; }
+  CU = found;
+  sessionStorage.setItem('vsp_ses', JSON.stringify(found));
+  $('lerr').style.display='none';
+  showApp();
+}
+
+function logout(){
+  CU=null; sessionStorage.removeItem('vsp_ses');
+  $('app').classList.remove('on'); $('loginPage').classList.add('on');
+}
+
+function showApp(){
+  $('loginPage').classList.remove('on'); $('app').classList.add('on');
+  $('un').textContent=CU.fullName; $('ur').textContent=CU.role;
+  const v=CU.role==='Viewer', a=CU.role==='Admin';
+  document.querySelectorAll('.ao').forEach(e=>e.style.display=a?'':'none');
+  ['ba','bp','bs','bsp','bc'].forEach(id=>{const el=$(id); if(el) el.style.display=v?'none':'';});
+  go('dash');
+}
+
+function go(n){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  const s=$('s-'+n); if(s) s.classList.add('on');
+  const nav=document.querySelector('.ni[data-s="'+n+'"]'); if(nav) nav.classList.add('on');
+  const t={dash:'Dashboard',inv:'Inventory (100 Parts)',pur:'Purchases',sal:'Sales',sup:'Suppliers',cus:'Customers',rep:'Reports',usr:'Users'};
+  $('pt').textContent=t[n]||n;
+  if(n==='dash') rDash(); if(n==='inv') rInv(); if(n==='pur') rPur(); if(n==='sal') rSal();
+  if(n==='sup') rSup(); if(n==='cus') rCus(); if(n==='rep') rep('inv'); if(n==='usr') rUsr();
+  $('side').classList.remove('open');
+}
+
+function rDash(){
+  const parts=DB.g('parts'), sales=DB.g('sales'), purch=DB.g('purchases');
+  const today=new Date().toISOString().slice(0,10);
+  $('st1').textContent=parts.length;
+  const low=parts.filter(p=>p.qty<=p.reorder);
+  $('st2').textContent=low.length;
+  $('lsb').style.display=low.length?'inline-block':'none';
+  $('lsb').textContent=low.length+' Low Stock';
+  const ts=sales.filter(s=>s.date===today).reduce((a,s)=>a+s.total,0);
+  $('st3').textContent='₹'+ts.toLocaleString('en-IN');
+  const tp=purch.filter(p=>p.date===today).reduce((a,p)=>a+p.total,0);
+  $('st4').textContent='₹'+tp.toLocaleString('en-IN');
+  const recent=[...sales].reverse().slice(0,5);
+  $('rs').innerHTML=recent.length?recent.map(s=>`<div class="lii"><span>${s.id} – ${s.customerName}</span><span class="am">₹${s.total.toLocaleString('en-IN')}</span></div>`).join(''):'<p class="mu">No sales yet — create one from Sales menu</p>';
+  $('ls').innerHTML=low.length?low.slice(0,8).map(p=>`<div class="lii"><span>${p.name}</span><span class="badge bd">Qty: ${p.qty}</span></div>`).join(''):'<p class="mu">All stocks healthy ✓</p>';
+}
+
+function rInv(){
+  const parts=DB.g('parts');
+  const q=($('is').value||'').toLowerCase(), cat=$('ic').value;
+  const cats=[...new Set(parts.map(p=>p.category))].sort();
+  const cur=$('ic').value;
+  $('ic').innerHTML='<option value="">All Categories</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  $('ic').value=cur;
+  let f=parts;
+  if(q) f=f.filter(p=>p.name.toLowerCase().includes(q)||p.id.toLowerCase().includes(q)||(p.brand||'').toLowerCase().includes(q));
+  if(cat) f=f.filter(p=>p.category===cat);
+  const v=CU.role==='Viewer';
+  $('itb').innerHTML=f.map(p=>{
+    const l=p.qty<=p.reorder;
+    return `<tr class="${l?'lr':''}"><td><b>${p.id}</b></td><td>${p.name}</td><td>${p.category}</td><td>${p.brand||'-'}</td>
+      <td>${l?`<span class="badge bd">${p.qty}</span>`:p.qty}</td><td>${p.reorder}</td><td>₹${p.purchasePrice}</td><td>₹${p.sellingPrice}</td>
+      <td class="ac">${v?'':`<button class="btn btn-sm btn-out" onclick="mPart('${p.id}')">Edit</button><button class="btn btn-sm btn-err" onclick="delP('${p.id}')">Del</button>`}</td></tr>`;
+  }).join('')||'<tr><td colspan="9" style="text-align:center;color:#999;padding:20px">No parts found</td></tr>';
+}
+
+function mPart(id){
+  const parts=DB.g('parts'), p=id?parts.find(x=>x.id===id):null, sups=DB.g('suppliers');
+  $('mt').textContent=p?'Edit Part':'Add New Part';
+  $('mb').innerHTML=`<div class="fr"><div class="fg"><label>Part ID</label><input id="f1" value="${p?p.id:''}" ${p?'readonly':''} placeholder="Auto"/></div>
+    <div class="fg"><label>Name *</label><input id="f2" value="${p?p.name:''}"/></div></div>
+    <div class="fr"><div class="fg"><label>Category *</label><input id="f3" value="${p?p.category:''}" list="cl"/><datalist id="cl">
+      <option value="Engine"><option value="Brakes"><option value="Electrical"><option value="Suspension">
+      <option value="Transmission"><option value="Body"><option value="Cooling"><option value="Filters / Fluids"></datalist></div>
+    <div class="fg"><label>Brand</label><input id="f4" value="${p?p.brand||'':''}"/></div></div>
+    <div class="fg"><label>Compatible Models</label><input id="f5" value="${p?p.models||'':''}"/></div>
+    <div class="fr3"><div class="fg"><label>Qty *</label><input type="number" id="f6" value="${p?p.qty:0}" min="0"/></div>
+    <div class="fg"><label>Reorder</label><input type="number" id="f7" value="${p?p.reorder:5}" min="0"/></div>
+    <div class="fg"><label>Supplier</label><select id="f8">${sups.map(s=>`<option value="${s.id}" ${p&&p.supplierId===s.id?'selected':''}>${s.name}</option>`).join('')}</select></div></div>
+    <div class="fr"><div class="fg"><label>Purchase ₹ *</label><input type="number" id="f9" value="${p?p.purchasePrice:''}" min="0"/></div>
+    <div class="fg"><label>Selling ₹ *</label><input type="number" id="f10" value="${p?p.sellingPrice:''}" min="0"/></div></div>`;
+  $('mf').innerHTML=`<button class="btn btn-out" onclick="cm()">Cancel</button><button class="btn btn-p" onclick="saveP('${id||''}')">Save</button>`;
+  om();
+}
+function saveP(id){
+  const name=$('f2').value.trim(), cat=$('f3').value.trim(), qty=+($('f6').value)||0, pp=+$('f9').value, sp=+$('f10').value;
+  if(!name||!cat){alert('Name & Category required');return}
+  if(qty<0||pp<0||sp<0){alert('No negative values');return}
+  let parts=DB.g('parts');
+  if(id){const i=parts.findIndex(p=>p.id===id);parts[i]={...parts[i],name,category:cat,brand:$('f4').value.trim(),models:$('f5').value.trim(),qty,reorder:+($('f7').value)||0,purchasePrice:pp,sellingPrice:sp,supplierId:$('f8').value}}
+  else{let pid=$('f1').value.trim();if(!pid){const c=DB.g('counters');c.part++;pid='P'+String(c.part).padStart(3,'0');DB.s('counters',c)}
+    if(parts.find(p=>p.id===pid)){alert('ID exists');return}
+    parts.push({id:pid,name,category:cat,brand:$('f4').value.trim(),models:$('f5').value.trim(),qty,reorder:+($('f7').value)||0,purchasePrice:pp,sellingPrice:sp,supplierId:$('f8').value})}
+  DB.s('parts',parts);cm();rInv();
+}
+function delP(id){if(!confirm('Delete part?'))return;DB.s('parts',DB.g('parts').filter(p=>p.id!==id));rInv()}
+
+function rSup(){
+  const list=DB.g('suppliers'),q=($('ss').value||'').toLowerCase();
+  const f=q?list.filter(s=>s.name.toLowerCase().includes(q)||s.phone.includes(q)):list;
+  const v=CU.role==='Viewer';
+  $('sutb').innerHTML=f.map(s=>`<tr><td><b>${s.id}</b></td><td>${s.name}</td><td>${s.contact||'-'}</td><td>${s.phone}</td><td>${s.email||'-'}</td><td>${s.address||'-'}</td>
+    <td class="ac">${v?'':`<button class="btn btn-sm btn-out" onclick="mSup('${s.id}')">Edit</button><button class="btn btn-sm btn-err" onclick="delS('${s.id}')">Del</button>`}</td></tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:#999">None</td></tr>';
+}
+function mSup(id){
+  const s=id?DB.g('suppliers').find(x=>x.id===id):null;
+  $('mt').textContent=s?'Edit Supplier':'Add Supplier';
+  $('mb').innerHTML=`<div class="fg"><label>Name *</label><input id="s1" value="${s?s.name:''}"/></div>
+    <div class="fr"><div class="fg"><label>Contact</label><input id="s2" value="${s?s.contact||'':''}"/></div><div class="fg"><label>Phone *</label><input id="s3" value="${s?s.phone:''}"/></div></div>
+    <div class="fg"><label>Email</label><input id="s4" value="${s?s.email||'':''}"/></div><div class="fg"><label>Address</label><input id="s5" value="${s?s.address||'':''}"/></div>`;
+  $('mf').innerHTML=`<button class="btn btn-out" onclick="cm()">Cancel</button><button class="btn btn-p" onclick="saveS('${id||''}')">Save</button>`;om();
+}
+function saveS(id){
+  const name=$('s1').value.trim(),phone=$('s3').value.trim();if(!name||!phone){alert('Name & Phone required');return}
+  let list=DB.g('suppliers');
+  if(id){const i=list.findIndex(s=>s.id===id);list[i]={...list[i],name,phone,contact:$('s2').value.trim(),email:$('s4').value.trim(),address:$('s5').value.trim()}}
+  else{const c=DB.g('counters');c.supplier++;DB.s('counters',c);list.push({id:'S'+String(c.supplier).padStart(3,'0'),name,phone,contact:$('s2').value.trim(),email:$('s4').value.trim(),address:$('s5').value.trim()})}
+  DB.s('suppliers',list);cm();rSup();
+}
+function delS(id){if(!confirm('Delete?'))return;DB.s('suppliers',DB.g('suppliers').filter(s=>s.id!==id));rSup()}
+
+function rCus(){
+  const list=DB.g('customers'),q=($('cs').value||'').toLowerCase();
+  const f=q?list.filter(c=>c.name.toLowerCase().includes(q)||(c.phone||'').includes(q)):list;
+  const v=CU.role==='Viewer';
+  $('ctb').innerHTML=f.map(c=>`<tr><td><b>${c.id}</b></td><td>${c.name}</td><td>${c.phone}</td><td>${c.email||'-'}</td><td>${c.address||'-'}</td>
+    <td class="ac">${v?'':`<button class="btn btn-sm btn-out" onclick="mCus('${c.id}')">Edit</button><button class="btn btn-sm btn-err" onclick="delC('${c.id}')">Del</button>`}</td></tr>`).join('')||'<tr><td colspan="6" style="text-align:center;color:#999">None</td></tr>';
+}
+function mCus(id){
+  const c=id?DB.g('customers').find(x=>x.id===id):null;
+  $('mt').textContent=c?'Edit Customer':'Add Customer';
+  $('mb').innerHTML=`<div class="fg"><label>Name *</label><input id="c1" value="${c?c.name:''}"/></div>
+    <div class="fr"><div class="fg"><label>Phone</label><input id="c2" value="${c?c.phone||'':''}"/></div><div class="fg"><label>Email</label><input id="c3" value="${c?c.email||'':''}"/></div></div>
+    <div class="fg"><label>Address</label><input id="c4" value="${c?c.address||'':''}"/></div>`;
+  $('mf').innerHTML=`<button class="btn btn-out" onclick="cm()">Cancel</button><button class="btn btn-p" onclick="saveC('${id||''}')">Save</button>`;om();
+}
+function saveC(id){
+  const name=$('c1').value.trim();if(!name){alert('Name required');return}
+  let list=DB.g('customers');
+  if(id){const i=list.findIndex(c=>c.id===id);list[i]={...list[i],name,phone:$('c2').value.trim(),email:$('c3').value.trim(),address:$('c4').value.trim()}}
+  else{const c=DB.g('counters');c.customer++;DB.s('counters',c);list.push({id:'C'+String(c.customer).padStart(3,'0'),name,phone:$('c2').value.trim(),email:$('c3').value.trim(),address:$('c4').value.trim()})}
+  DB.s('customers',list);cm();rCus();
+}
+function delC(id){if(!confirm('Delete?'))return;DB.s('customers',DB.g('customers').filter(c=>c.id!==id));rCus()}
+
+function rPur(){
+  $('ptb').innerHTML=[...DB.g('purchases')].reverse().map(p=>`<tr><td><b>${p.id}</b></td><td>${p.date}</td><td>${p.supplierName}</td><td>${p.items.map(i=>i.partName+' ×'+i.qty).join(', ')}</td><td><b>₹${p.total.toLocaleString('en-IN')}</b></td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:#999;padding:20px">No purchases yet</td></tr>';
+}
+function mPur(){
+  const sups=DB.g('suppliers'),parts=DB.g('parts');
+  $('mt').textContent='New Purchase';
+  $('mb').innerHTML=`<div class="fg"><label>Supplier *</label><select id="ps">${sups.map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div>
+    <label style="font-weight:600;font-size:12px">Items</label><div id="pli"><div class="li">
+      <div><label style="font-size:11px">Part</label><select class="pp">${parts.map(p=>`<option value="${p.id}" data-pr="${p.purchasePrice}">${p.name}</option>`).join('')}</select></div>
+      <div><label style="font-size:11px">Qty</label><input type="number" class="pq" value="1" min="1" oninput="cPT()"/></div>
+      <div><label style="font-size:11px">Price</label><input type="number" class="ppr" value="${parts[0]?parts[0].purchasePrice:0}" min="0" oninput="cPT()"/></div>
+      <button class="btn btn-sm btn-err" onclick="this.parentElement.remove();cPT()">✕</button></div></div>
+    <button class="btn btn-sm btn-out" style="margin-top:6px" onclick="addPL()">+ Item</button><div class="tot">Total: ₹<span id="ptt">0</span></div>`;
+  $('mf').innerHTML=`<button class="btn btn-out" onclick="cm()">Cancel</button><button class="btn btn-p" onclick="savePur()">Confirm</button>`;
+  om(); document.querySelectorAll('.pp').forEach(s=>s.onchange=function(){this.closest('.li').querySelector('.ppr').value=this.options[this.selectedIndex].dataset.pr||0;cPT()}); cPT();
+}
+function addPL(){const parts=DB.g('parts');const d=document.createElement('div');d.className='li';d.innerHTML=`<div><select class="pp">${parts.map(p=>`<option value="${p.id}" data-pr="${p.purchasePrice}">${p.name}</option>`).join('')}</select></div>
+  <div><input type="number" class="pq" value="1" min="1" oninput="cPT()"/></div><div><input type="number" class="ppr" value="${parts[0].purchasePrice}" min="0" oninput="cPT()"/></div>
+  <button class="btn btn-sm btn-err" onclick="this.parentElement.remove();cPT()">✕</button>`;$('pli').appendChild(d);
+  d.querySelector('.pp').onchange=function(){this.closest('.li').querySelector('.ppr').value=this.options[this.selectedIndex].dataset.pr||0;cPT()};cPT()}
+function cPT(){let t=0;document.querySelectorAll('#pli .li').forEach(r=>{t+=(+$('pq'in r?0:r.querySelector('.pq').value)||0)*(+r.querySelector('.ppr').value||0)});$('ptt').textContent=t.toLocaleString('en-IN')}
+function savePur(){
+  const sid=$('ps').value,sup=DB.g('suppliers').find(s=>s.id===sid),items=[];
+  document.querySelectorAll('#pli .li').forEach(r=>{const pid=r.querySelector('.pp').value,q=+r.querySelector('.pq').value||0,pr=+r.querySelector('.ppr').value||0;
+    if(q>0){const p=DB.g('parts').find(x=>x.id===pid);items.push({partId:pid,partName:p.name,qty:q,unitPrice:pr})}});
+  if(!items.length){alert('Add items');return}
+  let parts=DB.g('parts');items.forEach(i=>{const x=parts.findIndex(p=>p.id===i.partId);if(x>=0)parts[x].qty+=i.qty});DB.s('parts',parts);
+  const c=DB.g('counters');c.purchase++;DB.s('counters',c);
+  const total=items.reduce((a,i)=>a+i.qty*i.unitPrice,0);
+  const purch=DB.g('purchases');purch.push({id:'PU'+String(c.purchase).padStart(3,'0'),date:new Date().toISOString().slice(0,10),supplierId:sid,supplierName:sup.name,items,total});
+  DB.s('purchases',purch);cm();rPur();alert('Purchase saved! Stock updated.');
+}
+
+function rSal(){
+  $('stb').innerHTML=[...DB.g('sales')].reverse().map(s=>`<tr><td><b>${s.id}</b></td><td>${s.date}</td><td>${s.customerName}</td><td>${s.items.map(i=>i.partName+' ×'+i.qty).join(', ')}</td>
+    <td><b>₹${s.total.toLocaleString('en-IN')}</b></td><td><span class="badge bi">${s.paymentMode}</span></td>
+    <td><button class="btn btn-sm btn-out" onclick="printInv('${s.id}')">Print</button></td></tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">No sales yet</td></tr>';
+}
+function mSal(){
+  const custs=DB.g('customers'),parts=DB.g('parts').filter(p=>p.qty>0);
+  if(!parts.length){alert('No stock available');return}
+  $('mt').textContent='New Sale';
+  $('mb').innerHTML=`<div class="fr"><div class="fg"><label>Customer</label><select id="sc">${custs.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+    <div class="fg"><label>Payment</label><select id="spay"><option>Cash</option><option>Card</option><option>UPI</option></select></div></div>
+    <label style="font-weight:600;font-size:12px">Items</label><div id="sli"><div class="li">
+      <div><label style="font-size:11px">Part</label><select class="sp">${parts.map(p=>`<option value="${p.id}" data-pr="${p.sellingPrice}" data-mx="${p.qty}">${p.name} (Stock:${p.qty})</option>`).join('')}</select></div>
+      <div><label style="font-size:11px">Qty</label><input type="number" class="sq" value="1" min="1" oninput="cST()"/></div>
+      <div><label style="font-size:11px">Price</label><input type="number" class="spr" value="${parts[0].sellingPrice}" min="0" oninput="cST()"/></div>
+      <button class="btn btn-sm btn-err" onclick="this.parentElement.remove();cST()">✕</button></div></div>
+    <button class="btn btn-sm btn-out" style="margin-top:6px" onclick="addSL()">+ Item</button><div class="tot">Total: ₹<span id="stt">0</span></div>`;
+  $('mf').innerHTML=`<button class="btn btn-out" onclick="cm()">Cancel</button><button class="btn btn-p" onclick="saveSal()">Confirm Sale</button>`;
+  om();document.querySelectorAll('.sp').forEach(s=>s.onchange=function(){this.closest('.li').querySelector('.spr').value=this.options[this.selectedIndex].dataset.pr||0;cST()});cST();
+}
+function addSL(){const parts=DB.g('parts').filter(p=>p.qty>0);const d=document.createElement('div');d.className='li';
+  d.innerHTML=`<div><select class="sp">${parts.map(p=>`<option value="${p.id}" data-pr="${p.sellingPrice}">${p.name} (Stock:${p.qty})</option>`).join('')}</select></div>
+  <div><input type="number" class="sq" value="1" min="1" oninput="cST()"/></div><div><input type="number" class="spr" value="${parts[0].sellingPrice}" min="0" oninput="cST()"/></div>
+  <button class="btn btn-sm btn-err" onclick="this.parentElement.remove();cST()">✕</button>`;$('sli').appendChild(d);
+  d.querySelector('.sp').onchange=function(){this.closest('.li').querySelector('.spr').value=this.options[this.selectedIndex].dataset.pr||0;cST()};cST()}
+function cST(){let t=0;document.querySelectorAll('#sli .li').forEach(r=>{t+=(+(r.querySelector('.sq').value)||0)*(+(r.querySelector('.spr').value)||0)});$('stt').textContent=t.toLocaleString('en-IN')}
+function saveSal(){
+  const cid=$('sc').value,cust=DB.g('customers').find(c=>c.id===cid),pay=$('spay').value,items=[];
+  let parts=DB.g('parts'),err=false;
+  document.querySelectorAll('#sli .li').forEach(r=>{const pid=r.querySelector('.sp').value,q=+r.querySelector('.sq').value||0,pr=+r.querySelector('.spr').value||0;
+    const p=parts.find(x=>x.id===pid);if(q>0){if(q>p.qty){alert('Insufficient stock: '+p.name+' (avail: '+p.qty+')');err=true;return}items.push({partId:pid,partName:p.name,qty:q,unitPrice:pr})}});
+  if(err||!items.length){if(!items.length)alert('Add items');return}
+  items.forEach(i=>{const x=parts.findIndex(p=>p.id===i.partId);parts[x].qty-=i.qty});DB.s('parts',parts);
+  const c=DB.g('counters');c.sale++;DB.s('counters',c);
+  const total=items.reduce((a,i)=>a+i.qty*i.unitPrice,0);
+  const sales=DB.g('sales');sales.push({id:'SL'+String(c.sale).padStart(3,'0'),date:new Date().toISOString().slice(0,10),customerId:cid,customerName:cust.name,items,total,paymentMode:pay});
+  DB.s('sales',sales);cm();rSal();alert('Sale done! Invoice: SL'+String(c.sale).padStart(3,'0'));
+}
+function printInv(id){
+  const s=DB.g('sales').find(x=>x.id===id);if(!s)return;
+  $('invp').innerHTML=`<div style="max-width:600px;margin:0 auto"><h2 style="text-align:center;color:#0B3D5C">VSP – Vehicle Spare Parts</h2>
+    <p style="text-align:center;margin-bottom:16px">Tax Invoice</p>
+    <table style="width:100%;margin-bottom:12px;font-size:13px"><tr><td><b>Invoice:</b> ${s.id}</td><td style="text-align:right"><b>Date:</b> ${s.date}</td></tr>
+    <tr><td><b>Customer:</b> ${s.customerName}</td><td style="text-align:right"><b>Payment:</b> ${s.paymentMode}</td></tr></table>
+    <table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#0B3D5C;color:#fff">
+      <th style="padding:8px;text-align:left">#</th><th style="padding:8px;text-align:left">Part</th><th style="padding:8px;text-align:right">Qty</th>
+      <th style="padding:8px;text-align:right">Rate</th><th style="padding:8px;text-align:right">Amount</th></tr></thead>
+    <tbody>${s.items.map((it,i)=>`<tr><td style="padding:6px;border-bottom:1px solid #ddd">${i+1}</td><td style="padding:6px;border-bottom:1px solid #ddd">${it.partName}</td>
+      <td style="padding:6px;border-bottom:1px solid #ddd;text-align:right">${it.qty}</td><td style="padding:6px;border-bottom:1px solid #ddd;text-align:right">₹${it.unitPrice}</td>
+      <td style="padding:6px;border-bottom:1px solid #ddd;text-align:right">₹${(it.qty*it.unitPrice).toLocaleString('en-IN')}</td></tr>`).join('')}</tbody>
+    <tfoot><tr><td colspan="4" style="padding:10px;text-align:right;font-weight:bold">Grand Total</td>
+      <td style="padding:10px;text-align:right;font-weight:bold;font-size:16px">₹${s.total.toLocaleString('en-IN')}</td></tr></tfoot></table>
+    <p style="text-align:center;margin-top:24px;font-size:12px;color:#888">Thank you for your business! | VSP Management System</p></div>`;
+  window.print();
+}
+
+function rep(type,btn){
+  if(btn){document.querySelectorAll('.tb2').forEach(b=>b.classList.remove('on'));btn.classList.add('on')}
+  const parts=DB.g('parts'),sales=DB.g('sales'),purch=DB.g('purchases'),rb=$('rb');
+  if(type==='inv'){rb.innerHTML=`<h3 style="margin-bottom:10px">Inventory Status — ${parts.length} Parts</h3>
+    <table><thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Qty</th><th>Status</th><th>Value ₹</th></tr></thead><tbody>
+    ${parts.map(p=>`<tr class="${p.qty<=p.reorder?'lr':''}"><td>${p.id}</td><td>${p.name}</td><td>${p.category}</td><td>${p.qty}</td>
+    <td>${p.qty===0?'<span class="badge bd">Out</span>':p.qty<=p.reorder?'<span class="badge bw">Low</span>':'<span class="badge bs">OK</span>'}</td>
+    <td>₹${(p.qty*p.purchasePrice).toLocaleString('en-IN')}</td></tr>`).join('')}</tbody></table>
+    <p style="margin-top:10px"><b>Total Value:</b> ₹${parts.reduce((a,p)=>a+p.qty*p.purchasePrice,0).toLocaleString('en-IN')}</p>`}
+  else if(type==='low'){const low=parts.filter(p=>p.qty<=p.reorder);
+    rb.innerHTML=`<h3 style="margin-bottom:10px">Low Stock Report (${low.length} items)</h3>${!low.length?'<p class="mu">All stocks healthy!</p>':
+    `<table><thead><tr><th>ID</th><th>Name</th><th>Qty</th><th>Reorder</th><th>Shortage</th></tr></thead><tbody>
+    ${low.map(p=>`<tr class="lr"><td>${p.id}</td><td>${p.name}</td><td><span class="badge bd">${p.qty}</span></td><td>${p.reorder}</td><td>${Math.max(0,p.reorder-p.qty)}</td></tr>`).join('')}</tbody></table>`}`}
+  else if(type==='sal'){const t=sales.reduce((a,s)=>a+s.total,0);
+    rb.innerHTML=`<h3 style="margin-bottom:10px">Sales Report</h3><table><thead><tr><th>ID</th><th>Date</th><th>Customer</th><th>Payment</th><th>Amount</th></tr></thead><tbody>
+    ${[...sales].reverse().map(s=>`<tr><td>${s.id}</td><td>${s.date}</td><td>${s.customerName}</td><td>${s.paymentMode}</td><td>₹${s.total.toLocaleString('en-IN')}</td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center">No data</td></tr>'}</tbody></table>
+    <p style="margin-top:10px"><b>Total Sales:</b> ₹${t.toLocaleString('en-IN')} | <b>Count:</b> ${sales.length}</p>`}
+  else if(type==='pur'){const t=purch.reduce((a,p)=>a+p.total,0);
+    rb.innerHTML=`<h3 style="margin-bottom:10px">Purchase Report</h3><table><thead><tr><th>ID</th><th>Date</th><th>Supplier</th><th>Amount</th></tr></thead><tbody>
+    ${[...purch].reverse().map(p=>`<tr><td>${p.id}</td><td>${p.date}</td><td>${p.supplierName}</td><td>₹${p.total.toLocaleString('en-IN')}</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center">No data</td></tr>'}</tbody></table>
+    <p style="margin-top:10px"><b>Total Purchases:</b> ₹${t.toLocaleString('en-IN')} | <b>Orders:</b> ${purch.length}</p>`}
+}
+
+function rUsr(){
+  $('utb').innerHTML=DB.g('users').map(u=>`<tr><td><b>${u.username}</b></td><td>${u.fullName}</td><td><span class="badge bi">${u.role}</span></td>
+    <td>${u.status==='Active'?'<span class="badge bs">Active</span>':'<span class="badge bd">Inactive</span>'}</td>
+    <td class="ac">${u.username!=='admin'?`<button class="btn btn-sm btn-out" onclick="togU('${u.username}')">${u.status==='Active'?'Deactivate':'Activate'}</button>`:'—'}</td></tr>`).join('');
+}
+function mUsr(){
+  $('mt').textContent='Add User';
+  $('mb').innerHTML=`<div class="fr"><div class="fg"><label>Username *</label><input id="u1"/></div><div class="fg"><label>Password *</label><input type="password" id="u2"/></div></div>
+    <div class="fr"><div class="fg"><label>Full Name *</label><input id="u3"/></div><div class="fg"><label>Role</label><select id="u4"><option>Staff</option><option>Viewer</option><option>Admin</option></select></div></div>`;
+  $('mf').innerHTML=`<button class="btn btn-out" onclick="cm()">Cancel</button><button class="btn btn-p" onclick="saveU()">Create</button>`;om();
+}
+function saveU(){
+  const u=$('u1').value.trim(),p=$('u2').value,n=$('u3').value.trim(),r=$('u4').value;
+  if(!u||!p||!n){alert('All fields required');return}if(p.length<4){alert('Password min 4 chars');return}
+  let users=DB.g('users');if(users.find(x=>x.username===u)){alert('Username exists');return}
+  users.push({username:u,password:p,fullName:n,role:r,status:'Active'});DB.s('users',users);cm();rUsr();
+}
+function togU(u){let users=DB.g('users');const i=users.findIndex(x=>x.username===u);if(i<0)return;users[i].status=users[i].status==='Active'?'Inactive':'Active';DB.s('users',users);rUsr()}
+
+function om(){$('mo').classList.add('on')} function cm(){$('mo').classList.remove('on')}
+
+// FORCE RESET parts to 100 if user wants fresh data
+function resetParts(){DB.s('parts',PARTS100);alert('100 spare parts loaded!');rInv()}
+
+document.getElementById('loginForm').addEventListener('submit',login);
+document.addEventListener('DOMContentLoaded',()=>{
+  DB.init();
+  // If old data with few parts, force 100
+  if((DB.g('parts')||[]).length<50){DB.s('parts',PARTS100)}
+  const ses=sessionStorage.getItem('vsp_ses');
+  if(ses){CU=JSON.parse(ses);showApp()}
+});
+</script>
+</body>
+</html>
