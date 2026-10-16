@@ -507,3 +507,17 @@ def sale(d:s.SaleIn,db:Session=Depends(get_db),u:m.User=Depends(allow("Admin","S
     except Exception:db.rollback();raise
 @app.get("/api/sales")
 def sales(db:Session=Depends(get_db),u:m.User=Depends(current_user)):return [tx_json(x,True) for x in db.scalars(select(m.Sale).options(selectinload(m.Sale.items)).order_by(m.Sale.date,m.Sale.id)).all()]
+@app.on_event("startup")
+def bootstrap_admin_from_env():
+    import os
+    username=os.getenv("ADMIN_USERNAME","").strip()
+    password=os.getenv("ADMIN_PASSWORD","")
+    full_name=os.getenv("ADMIN_FULL_NAME","Store Admin").strip() or "Store Admin"
+    if not username or not password:
+        return
+    with SessionLocal() as db:
+        existing=db.scalar(select(m.User).where(func.lower(m.User.username)==username.casefold()))
+        if existing:
+            return
+        db.add(m.User(username=username,full_name=full_name,password_hash=PasswordHash.recommended().hash(password),role="Admin",active=True))
+        db.commit()
